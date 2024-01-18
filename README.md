@@ -22,12 +22,31 @@ git clone
 pnpm install
 ```
 
-### 3. 開発サーバーを起動する (Webパネル側の開発のみ)
+### 3. `.clasp.json` ファイルを作成する
+`.clasp.json.sample` から `.clasp.json` ファイルを作成してください。
+```bash
+cp .clasp.json.sample .clasp.json
+```
+
+```
+{
+  "scriptId": "スクリプトID",
+  "rootDir": "coreディレクトリまでの絶対パス/core"
+}
+```
+
+[Tips] 以下のコマンドで、coreディレクトリまでの絶対パスを取得できます。(一例)
+```bash
+$ pwd core
+/home/<ユーザ>/newStudentReceptionSystem
+```
+
+### 4. 開発サーバーを起動する (Webパネル側の開発のみ)
 ```bash
 pnpm run dev
 ```
 
-### 4. ビルドする
+### 5. ビルドする
 ```bash
 pnpm run build
 ```
