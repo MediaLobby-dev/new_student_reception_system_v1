@@ -1,22 +1,15 @@
-import { useState } from 'react'
+import InputBox from '../components/InputBox'
+import Footer from '../components/Footer'
+import UserTable from '../components/UserView'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <h1>あああ</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div className="container py-4">
+        <InputBox />
+        <UserTable />
+        <Footer />
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
