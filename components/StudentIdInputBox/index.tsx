@@ -1,4 +1,10 @@
-export default function InputBox() {
+import React from "react"
+
+type Props = {
+    setStudentId : React.Dispatch<React.SetStateAction<string>>
+}
+
+export default function StudentIdInputBox({setStudentId}: Props) {
     return (
         <>
             <div className="row g-3 align-items-center py-3">
@@ -6,7 +12,7 @@ export default function InputBox() {
                     <label className="col-form-label">学籍番号</label>
                 </div>
                 <div className="col-auto">
-                    <input type="text" className="form-control"/>
+                    <input type="text" className="form-control" onChange={(e) => {setStudentId(e.target.value)}}/>
                 </div>
                 <div className="col-auto">
                     <span id="passwordHelpInline" className="form-text">
