@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>受付票</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'PT Sans', sans-serif;
+        }
+    
+        p {
+            margin: 0;
+            padding: 0;
+        }
+    
+        @page {
+            size: 2.8in 11in;
+            margin-top: 0cm;
+            margin-left: 0cm;
+            margin-right: 0cm;
+        }
+    
+        section {
+            margin-top: 12px;
+        }
+    
+        section div.title {
+            font-size: 12px;
+        }
+    
+        section div.content {
+            font-size: 24px;
+            margin-left: 10px;
+        }
+    
+        header {
+            width: 100%;
+            text-align: center;
+            -webkit-align-content: center;
+            align-content: center;
+            vertical-align: middle;
+        }
+    
+        .center-align {
+            text-align: center;
+        }
+    
+        .barcode-space {
+            text-align: center;
+            margin: 25px 0px;
+        }
+    
+        .seal-space {
+            height: 400px;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+    
+        .border {
+            border: 0;
+            border-bottom: 2px dashed #ccc;
+            background: #858585;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        受付票
+    </header>
+
+    <section>
+        <div class="title">
+            受付時刻
+        </div>
+        <div class="content">
+            <?=timestamp ?>
+        </div>
+    </section>
+
+    <section>
+        <div class="title">
+            氏名
+        </div>
+        <div class="content">
+            <?=studentName ?> 様
+        </div>
+    </section>
+
+    <section>
+        <div class="title">
+            フリガナ
+        </div>
+        <div class="content">
+            <?=pseudonym ?> 様
+        </div>
+    </section>
+
+    <section>
+        <div class="title">
+            学籍番号
+        </div>
+        <div class="content" id="studentId">
+            <?=studentId ?>
+        </div>
+    </section>
+
+    <div class="barcode-space">
+        <img id="barcode" />
+    </div>
+
+    <hr class="border">
+
+    <div class="seal-space">
+        <p>製品保証シール 貼り付けスペース</p>
+        <p>(ガイダンス中に案内があります)</p>
+    </div>
+
+    <hr class="border">
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script>
+        window.onload = function () {
+            const studentId = document.getElementById("studentId").textContent.trim();
+
+            if (!studentId.length == 8) {
+                alert("学籍番号が不正です。印刷を中止します。");
+                window.close();
+                return;
+            }
+
+            JsBarcode("#barcode", studentId, {
+                format: "CODE39",
+                lineColor: "#000",
+                width: 1,
+                height: 50,
+                displayValue: false,
+                mod43: false
+            });
+
+            setTimeout(function () {
+                window.print();
+            }, 200);
+        }
+    </script>
+
+</body>
+
+</html>

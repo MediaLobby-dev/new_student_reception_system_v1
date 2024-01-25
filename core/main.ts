@@ -13,11 +13,12 @@ function showModal(): void {
 }
 
 function doGet(e): GoogleAppsScript.HTML.HtmlOutput {
-  const printPage: GoogleAppsScript.HTML.HtmlTemplate = HtmlService.createTemplateFromFile("print/index.html")
+  const printPage: GoogleAppsScript.HTML.HtmlTemplate = HtmlService.createTemplateFromFile("print.html")
   const { studentId, studentName, pseudonym } = e.parameter;
   printPage.studentId = studentId;
   printPage.studentName = studentName;
   printPage.pseudonym = pseudonym;
+  printPage.timestamp = new Date().toLocaleString();
   return printPage.evaluate();
 }
 
