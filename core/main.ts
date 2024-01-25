@@ -12,6 +12,15 @@ function showModal(): void {
   SpreadsheetApp.getUi().showModalDialog(container, "新入生受付システム");
 }
 
+function doGet(e): GoogleAppsScript.HTML.HtmlOutput {
+  const printPage: GoogleAppsScript.HTML.HtmlTemplate = HtmlService.createTemplateFromFile("print/index.html")
+  const { studentId, studentName, pseudonym } = e.parameter;
+  printPage.studentId = studentId;
+  printPage.studentName = studentName;
+  printPage.pseudonym = pseudonym;
+  return printPage.evaluate();
+}
+
 // ======================================================================================
 // 型定義
 // ======================================================================================

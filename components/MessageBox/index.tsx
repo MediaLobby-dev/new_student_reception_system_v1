@@ -48,6 +48,17 @@ export default function MessageBox() {
                     </div>
                 </>
             );
+        case 405:
+            return (
+                <>
+                    <div className="container py-2">
+                        <div className="alert alert-info" role="alert">
+                            <p>正しい学籍番号を入力してください。</p>
+                            <p className="mb-0">8桁入力されているかご確認ください。</p>
+                        </div>
+                    </div>
+                </>
+            );
         case 500:
             return (
                 <>

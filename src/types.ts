@@ -5,3 +5,7 @@ export type StudentData = {
     department: string;
     remarks: string;
 }
+export type queryProps = {
+    isLoading: boolean,
+    data: StudentData | null,
+}
