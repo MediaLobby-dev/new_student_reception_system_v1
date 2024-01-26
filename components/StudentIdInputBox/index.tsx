@@ -48,7 +48,7 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
     // レシートプリント
     function print() {
         // プリントページを開く
-        const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_PAGE_ID}/exec?studentId=${studentId}&studentName=${data?.studentName}&pseudonym=${data?.pseudonym}&department=${data?.department}&timestamp=${new Date().getTime()}`)
+        const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_PAGE_ID}/exec?studentId=${studentId}&studentName=${data?.studentName}&pseudonym=${data?.pseudonym}&department=${data?.department}`)
 
         // 3秒後にプリントページを閉じる
         setTimeout(() => {
