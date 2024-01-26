@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { StatusMsg } from "../../src/App";
 import { editRemarks } from "../../src/gas";
 
-export default function RemarkInputBox({ studentId, originalRemarks }: { studentId: string, originalRemarks: string }) {
+export default function RemarkInputBox({ studentId, originalRemarks }: { studentId: string, originalRemarks: string}) {
     const [remarks, setRemarks] = useState<string>(originalRemarks);
+    const { setStatusCode } = useContext(StatusMsg);
 
     async function updateRemarks(): Promise<void> {
-        await editRemarks(studentId, remarks);
+        const res = await editRemarks(studentId, remarks);
+        if (res === true) {
+            setStatusCode(201);
+        } else {
+            setStatusCode(500);
+        }
     }
 
     return (

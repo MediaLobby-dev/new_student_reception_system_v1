@@ -24,9 +24,11 @@ export const StudentDataStore = createContext<StudentDataStoreProps>({
   data: {
     studentId: '',
     studentName: '',
-    pseudonym: '',
+    kana: '',
     department: '',
-    remarks: ''
+    remarks: '',
+    supplyList: [],
+    receptionStatus: false,
   },
   setData: () => { }
 })
@@ -37,9 +39,11 @@ function App() {
   const [data, setData] = useState<StudentData>({
     studentId: '',
     studentName: '',
-    pseudonym: '',
+    kana: '',
     department: '',
-    remarks: ''
+    remarks: '',
+    supplyList: [],
+    receptionStatus: false,
   })
 
   return (

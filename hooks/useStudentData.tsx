@@ -35,9 +35,9 @@ export function useStudentData(studentId: string) {
             }
 
             // データ取得
-            await getStudentData(studentId).then((data) => {
+            await getStudentData(studentId).then((data: StudentData | null) => {
                 // 検索結果が空の場合
-                if (data.studentId === "") {
+                if (data === null) {
                     setQuery({
                         isLoading: false,
                         data: null,
