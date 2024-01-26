@@ -13,7 +13,7 @@ function showModal(): void {
 }
 
 function doGet(e): GoogleAppsScript.HTML.HtmlOutput {
-  const printPage: GoogleAppsScript.HTML.HtmlTemplate = HtmlService.createTemplateFromFile("print.html")
+  const printPage: GoogleAppsScript.HTML.HtmlTemplate = HtmlService.createTemplateFromFile("printPage/index.html")
   const { studentId, studentName, pseudonym } = e.parameter;
   printPage.studentId = studentId;
   printPage.studentName = studentName;
