@@ -11,6 +11,10 @@ type Props = {
     setStudentId: React.Dispatch<React.SetStateAction<string>>
 }
 
+if(import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === undefined || import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === "") {
+    throw new Error("[Error] VITE_PRINT_SERVICE_DEPLOY_ID を設定してください。")
+}
+
 export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
     const { statusCode, setStatusCode } = useContext(StatusMsg);
     const { data } = useContext(StudentDataStore);
@@ -48,7 +52,7 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
     // レシートプリント
     function print() {
         // プリントページを開く
-        const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_PAGE_ID}/exec?studentId=${studentId}&studentName=${data?.studentName}&pseudonym=${data?.pseudonym}&department=${data?.department}`)
+        const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID}/exec?studentId=${studentId}&studentName=${data?.studentName}&pseudonym=${data?.pseudonym}`)
 
         // 3秒後にプリントページを閉じる
         setTimeout(() => {

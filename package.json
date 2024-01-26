@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "gas-build": "clasp push && clasp deploy",
-    "build": "tsc && vite build && clasp push",
+    "push": "dotenv -- bash -c 'clasp push && clasp deploy --description $(date +'%Y.%m.%d.%I.%M.%S') --deploymentId $VITE_PRINT_SERVICE_DEPLOY_ID'",
+    "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -29,6 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "dotenv-cli": "^7.3.0",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
