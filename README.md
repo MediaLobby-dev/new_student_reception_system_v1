@@ -22,6 +22,17 @@ PCキッティング会場にて受付を行う際に、新入生の方が持っ
 pnpm run build && pnpm run push
 ```
 
+### 3. 受付用のPCにて、Chromeをキオスクモードで起動する
+```ps1
+> "C:\Program Files\Google\Chrome\Application\chrome.exe" --kiosk --kiosk-printing --disable-pinch "<スプレッドシートのURL>"
+```
+
+または、本プロジェクトルート直下にある`start.bat`を実行することで起動できます。(batファイルは可搬です)
+```ps1
+> start.bat "<スプレッドシートのURL>"
+```
+**Chromeのプロセスが完全に終了していることを確認してから実行してください。プロセスが生存している状態で実行するとキオスクモードで起動しません！！**
+
 ## 開発の手引
 > [!WARNING]
 > 基本的にローカルではWebパネルのみ開発しかできません。サーバー側の開発は、逐一GAS上にプッシュして確認する必要があります。  
