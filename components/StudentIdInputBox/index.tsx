@@ -2,6 +2,7 @@ import { useContext, useRef } from "react"
 import { StatusMsg } from "../../src/App"
 import Button from "../Button"
 import { StudentDataStore } from "../../src/App"
+import { make_accepted_processing } from "../../src/gas"
 
 import { GrPowerReset } from "react-icons/gr";
 import { GrCheckboxSelected } from "react-icons/gr";
@@ -11,14 +12,14 @@ type Props = {
     setStudentId: React.Dispatch<React.SetStateAction<string>>
 }
 
-if(import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === undefined || import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === "") {
+if (import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === undefined || import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === "") {
     throw new Error("[Error] VITE_PRINT_SERVICE_DEPLOY_ID を設定してください。")
 }
 
 export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
     const { statusCode, setStatusCode } = useContext(StatusMsg);
     const { data } = useContext(StudentDataStore);
-    
+
     const inputEl = useRef<HTMLInputElement>(null)
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,27 +42,51 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
         }
     }
 
-    // ユーザ存在チェック
-    function checkUser() {
-        if (statusCode === 200) {
-            return false
+    // 確認済みボタンの無効化
+    function disabledCheck() {
+        // ステータスコードが0の場合は、無効にする
+        if (statusCode === 0) {
+            return true
         }
-        return true
+
+        // ステータスコードが4xxで始まる場合は、無効にする
+        if (statusCode.toString().startsWith("4")) {
+            return true
+        }
+
+        // ステータスコードが5xxで始まる場合は、無効にする
+        if (statusCode.toString().startsWith("5")) {
+            return true
+        }
+
+        // 受付済みの場合は再度確認を無効にする
+        if (data?.receptionStatus === true) {
+            return true
+        }
+
+        return false
     }
 
     // レシートプリント
-    function print() {
+    async function print() {
         // プリントページを開く
-        const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID}/exec?studentId=${studentId}&studentName=${data?.studentName}&pseudonym=${data?.pseudonym}`)
+        const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID}/exec?studentId=${studentId}&studentName=${data?.studentName}&kana=${data?.kana}`)
+
+        // GASで行塗りつぶしの受付処理を行う
+        const res = await make_accepted_processing(studentId)
+
+        if (res === false) {
+            alert("[Error] 受付処理(GAS側)の最中にエラーが発生しました。")
+        }
 
         // 3秒後にプリントページを閉じる
-        setTimeout(() => {
-            if (printPage) {
+        setTimeout(async () => {
+            if (printPage !== null) {
                 printPage.close()
                 reset()
             }
             else {
-                alert("印刷に失敗しました。")
+                alert("[Error] プリントページを閉じることができませんでした。手動で閉じてください。")
             }
         }, 3000);
     }
@@ -84,7 +109,7 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
                     <Button onClick={() => reset()}>
                         <GrPowerReset /> リセット
                     </Button>
-                    <Button status="success" onClick={() => { print() }} disabled={checkUser()} >
+                    <Button status="success" onClick={() => { print() }} disabled={disabledCheck()} >
                         <GrCheckboxSelected /> 確認済み
                     </Button>
                 </div>

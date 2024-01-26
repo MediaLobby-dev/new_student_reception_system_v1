@@ -1,3 +1,21 @@
+// シート名
+const SHEET_NAME = "新入生DB";
+
+// 学生データ型
+type StudentData = {
+  studentId: string;
+  studentName: string;
+  kana: string;
+  department: string;
+  remarks: string;
+  supplyList: string[];
+  receptionStatus: boolean;
+}
+
+// ======================================================================================
+// GAS依存関数群
+// ======================================================================================
+
 // メニューに起動ボタンを追加
 function onOpen(): void {
   SpreadsheetApp.getUi()
@@ -8,34 +26,33 @@ function onOpen(): void {
 
 // モーダルダイアログを表示
 function showModal(): void {
-  const container: GoogleAppsScript.HTML.HtmlOutput = HtmlService.createHtmlOutputFromFile("webpanel/index.html").setWidth(1200).setHeight(800);
+  const container: GoogleAppsScript.HTML.HtmlOutput = HtmlService.createHtmlOutputFromFile("webpanel/index.html").setWidth(1200).setHeight(1000);
   SpreadsheetApp.getUi().showModalDialog(container, "新入生受付システム");
 }
 
+// プリントサービス
 function doGet(e): GoogleAppsScript.HTML.HtmlOutput {
   const printPage: GoogleAppsScript.HTML.HtmlTemplate = HtmlService.createTemplateFromFile("printPage/index.html")
-  const { studentId, studentName, pseudonym } = e.parameter;
+  const { studentId, studentName, kana } = e.parameter;
   printPage.studentId = studentId;
   printPage.studentName = studentName;
-  printPage.pseudonym = pseudonym;
+  printPage.kana = kana;
   printPage.timestamp = new Date().toLocaleString();
   return printPage.evaluate();
 }
 
-// ======================================================================================
-// 型定義
-// ======================================================================================
-interface StudentData { // 学生データ
-  studentId: string;
-  studentName: string;
-  pseudonym: string;
-  department: string;
-  remarks: string;
-  dataPosition: {
-    row: number;
-  };
+// シート名チェック
+const getActiveSheet = (): GoogleAppsScript.Spreadsheet.Sheet => {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+
+  if (sheet === null) {
+    throw new Error("[Error] シート名が誤っています。処理を行いたいシートの名称を「新入生DB」に設定してください。");
+  }
+
+  return sheet;
 }
 
+// ======================================================================================
 
 // ======================================================================================
 // 以下がバックエンド処理関数群
@@ -43,59 +60,84 @@ interface StudentData { // 学生データ
 
 // スプシ上のデータを走査して、該当するデータをWebPanel側に返す関数 (TODO: @sage)
 function getStudentData(studentId: string): StudentData | null {
-
-  // 学籍番号のバリデーション
-
-  // 走査処理
-
-  // アクティブシートの取得
-  const mainsheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('シート1');
-
-  if (mainsheet === null) return null;
-
-  //シートの行数をA列で数える
-  const sprt_values = mainsheet.getRange('A:A').getValues();
-  //空白の要素を除いた長さを取得
+  const sheet = getActiveSheet();
+  const sprt_values = sheet.getRange('A:A').getValues();
   const sprt_lastrow = sprt_values.filter(String).length;
-
-  const studentIDColumn = 1;
-  const namelColumn = 2;
-  const furiganaColumn = 3;
-  const facultyColumn = 4;
-  const remarksColumn = 5;
 
   const studentData: StudentData = {
     studentId: "",
     studentName: "",
     department: "",
-    pseudonym: "",
+    kana: "",
     remarks: "",
-    dataPosition: {
-      row: 0
-    }
+    supplyList: [],
+    receptionStatus: false,
   };
 
-  for (let i = 1; i <= sprt_lastrow; i++) {
-    if (mainsheet.getRange(i, 1).getValue() === studentId) {
-      studentData.dataPosition.row = i;
-      studentData.studentId = mainsheet.getRange(i, studentIDColumn).getValue();
-      studentData.studentName = mainsheet.getRange(i, namelColumn).getValue();
-      studentData.pseudonym = mainsheet.getRange(i, furiganaColumn).getValue();
-      studentData.department = mainsheet.getRange(i, facultyColumn).getValue();
-      studentData.remarks = mainsheet.getRange(i, remarksColumn).getValue();
+  for (let i = 2; i <= sprt_lastrow; i++) {
+    if (sheet.getRange(i, 1).getValue() === studentId) {
+      studentData.studentId = sheet.getRange(i, 1).getValue();
+      studentData.studentName = sheet.getRange(i, 2).getValue();
+      studentData.kana = sheet.getRange(i, 3).getValue();
+      studentData.department = sheet.getRange(i, 4).getValue();
+      studentData.remarks = sheet.getRange(i, 5).getValue();
+
+      // サプライ品購入済みの場合
+      if (!(sheet.getRange(i, 6).getValue() === "")) {
+        studentData.supplyList = sheet.getRange(i, 6).getValue().split(",");
+      }
+
+      // 受付済みの場合
+      if (!(sheet.getRange(i, 7).getValue() === "")) {
+        studentData.receptionStatus = true;
+      }
     }
   }
 
-  return studentData;
+  // 該当するデータがなかった場合
+  if (studentData.studentId === "") {
+    return null;
+  }
+  else {
+    return studentData;
+  }
 }
 
 // Webパネルから受け取った位置情報の行の色を変更する関数 (TODO: @sage)
-function fillingLine({ row, column }: { row: number, column: number }): string {
+function make_accepted_processing(studentId: string): boolean {
+  const sheet = getActiveSheet();
+  const sprt_values = sheet.getRange('A:A').getValues();
+  const sprt_lastrow = sprt_values.filter(String).length;
 
-  // 位置を特定
+  // 走査結果
+  let status: boolean = false;
 
-  // 塗りつぶし
+  for (let i = 2; i <= sprt_lastrow; i++) {
+    if (sheet.getRange(i, 1).getValue() === studentId) {
+      sheet.getRange(i, 7).setValue("受付済み"); // 該当者の受付状況を「受付済み」に変更
+      sheet.getRange(i, 1, 1, 7).setBackground("#bce2e8"); // 受付完了者の行の背景色を緑に変更
+      status = true;
+    }
+  }
 
-  return "success";
+  return status;
 }
 
+// 備考欄の編集を行う関数
+function editRemarks(studentId: string, remarks: string): boolean {
+  const sheet = getActiveSheet();
+  const sprt_values = sheet.getRange('A:A').getValues();
+  const sprt_lastrow = sprt_values.filter(String).length;
+
+  // 走査結果
+  let status: boolean = false;
+
+  for (let i = 2; i <= sprt_lastrow; i++) {
+    if (sheet.getRange(i, 1).getValue() === studentId) {
+      sheet.getRange(i, 5).setValue(remarks); // 該当者の備考欄を編集
+      status = true;
+    }
+  }
+
+  return status;
+}
