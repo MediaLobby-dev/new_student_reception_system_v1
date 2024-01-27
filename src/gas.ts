@@ -28,6 +28,6 @@ export function editRemarks(studentId: string, remarks: string) {
         google.script.run
             .withSuccessHandler((msg: string) => resolve(msg))
             .withFailureHandler((e: any) => reject(e)) 
-            .editRemarks({studentId, remarks});
+            .editRemarks(studentId, remarks);
     });
 }

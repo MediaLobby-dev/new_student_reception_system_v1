@@ -2,7 +2,7 @@ import { useContext, useRef } from "react"
 import { StatusMsg } from "../../src/App"
 import Button from "../Button"
 import { StudentDataStore } from "../../src/App"
-import { make_accepted_processing } from "../../src/gas"
+import { print } from "../../src/printSystem"
 
 import { GrPowerReset } from "react-icons/gr";
 import { GrCheckboxSelected } from "react-icons/gr";
@@ -15,6 +15,7 @@ type Props = {
 if (import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === undefined || import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === "") {
     throw new Error("[Error] VITE_PRINT_SERVICE_DEPLOY_ID を設定してください。")
 }
+
 
 export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
     const { statusCode, setStatusCode } = useContext(StatusMsg);
@@ -67,29 +68,6 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
         return false
     }
 
-    // レシートプリント
-    async function print() {
-        // プリントページを開く
-        const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID}/exec?studentId=${studentId}&studentName=${data?.studentName}&kana=${data?.kana}`)
-
-        // GASで行塗りつぶしの受付処理を行う
-        const res = await make_accepted_processing(studentId)
-
-        if (res === false) {
-            alert("[Error] 受付処理(GAS側)の最中にエラーが発生しました。")
-        }
-
-        // 3秒後にプリントページを閉じる
-        setTimeout(async () => {
-            if (printPage !== null) {
-                printPage.close()
-                reset()
-            }
-            else {
-                alert("[Error] プリントページを閉じることができませんでした。手動で閉じてください。")
-            }
-        }, 3000);
-    }
 
     return (
         <>
@@ -109,7 +87,7 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
                     <Button onClick={() => reset()}>
                         <GrPowerReset /> リセット
                     </Button>
-                    <Button status="success" onClick={() => { print() }} disabled={disabledCheck()} >
+                    <Button status="success" onClick={() => { print(studentId, data.studentName, data.kana, reset) }} disabled={disabledCheck()} >
                         <GrCheckboxSelected /> 確認済み
                     </Button>
                 </div>
