@@ -59,9 +59,18 @@ export default function UserView({ studentId }: { studentId: string }) {
             <div className="row">
                 <div className="col-sm-6">
                     <div className="card mb-2">
-                        <div className="card-body">
-                            <h6 className="card-subtitle mb-2 text-body-secondary">受付状況</h6>
-                            <div className={styles.viewBox}>{data?.receptionStatus ? <span className={styles.doneReception}>受付済</span> : <span>未受付</span>}</div>
+                        <div className="card-body"
+                            data-tooltip-id="receptionStatusTooltip"
+                            data-tooltip-content="受付票の印字ミスなどで受付取消を行う場合はシートを直接編集してください。"
+                            data-tooltip-place="top">
+                            <h6
+                                className="card-subtitle mb-2 text-body-secondary">
+                                受付状況
+                            </h6>
+                            <div className={styles.viewBox}>
+                                {data?.receptionStatus ? <div className={styles.doneReception}>受付済</div> : <div>未受付</div>}
+                                {data?.receptionStatus && <div className={styles.description}>※受付票の印字ミスなどで受付取消を行う場合はシートを直接編集してください。</div>}
+                            </div>
                         </div>
                     </div>
                     <div className="card mb-2">
