@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { StatusMsg } from "../../src/App";
+import { StateStore } from "../../src/App";
 import { editRemarks } from "../../src/gas";
 
 import styles from "./styles.module.scss";
@@ -8,7 +8,7 @@ import Button from "../Button";
 
 export default function RemarkInputBox({ studentId, originalRemarks }: { studentId: string, originalRemarks: string }) {
     const [remarks, setRemarks] = useState<string>(originalRemarks);
-    const { statusCode, setStatusCode } = useContext(StatusMsg);
+    const { statusCode, setStatusCode } = useContext(StateStore);
 
     async function updateRemarks(): Promise<void> {
         const res = await editRemarks(studentId, remarks);

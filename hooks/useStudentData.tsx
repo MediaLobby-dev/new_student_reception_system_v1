@@ -1,8 +1,7 @@
 import { useEffect, useState, useContext } from 'react'
 import { getStudentData } from '../src/gas'
-import { StatusMsg } from '../src/App'
 import { StudentData } from '../src/types'
-import { StudentDataStore } from '../src/App'
+import { StateStore } from '../src/App'
 
 type queryProps = {
     isLoading: boolean,
@@ -15,8 +14,7 @@ export function useStudentData(studentId: string) {
         data: null,
     });
 
-    const { setData } = useContext(StudentDataStore);
-    const { setStatusCode } = useContext(StatusMsg);
+    const { setStatusCode, setData } = useContext(StateStore);
 
     useEffect(() => {
         if (query.data) setData(query.data);

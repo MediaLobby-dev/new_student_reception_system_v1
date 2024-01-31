@@ -1,7 +1,7 @@
 import { make_accepted_processing } from "./gas"
 
 // レシートプリント
-export async function printRecipt(studentId: string, studentName: string, kana: string, reset: () => void) {
+export async function printRecipt(studentId: string, studentName: string, kana: string, success: () => void) {
     // プリントページを開く
     const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID}/exec?studentId=${studentId}&studentName=${studentName}&kana=${kana}`)
 
@@ -16,7 +16,7 @@ export async function printRecipt(studentId: string, studentName: string, kana: 
     setTimeout(() => {
         if (printPage !== null) {
             printPage.close()
-            reset()
+            success()
         }
         else {
             alert("[Error] プリントページを閉じることができませんでした。手動で閉じてください。")

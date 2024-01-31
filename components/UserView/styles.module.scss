@@ -10,6 +10,15 @@
     margin-top: 10px;
 }
 
+.controlBtnBox{
+    display: flex;
+    justify-content: space-between;
+}
+
+.smallbtn{
+    font-size: 1rem;
+}
+
 .bs {
     background-color: #00953d;
     color: #fff;
@@ -57,4 +66,22 @@
     color: #fff;
     padding: 0 1rem;
     width: fit-content;
+}
+
+
+.modalTitle{
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+}
+
+.modalBody{
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.modalBtnBox{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
 }

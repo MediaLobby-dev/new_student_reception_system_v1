@@ -8,7 +8,7 @@ type StudentData = {
   kana: string;
   department: string;
   remarks: string;
-  supplyList: string[];
+  supply: string;
   receptionStatus: boolean;
 }
 
@@ -70,7 +70,7 @@ function getStudentData(studentId: string): StudentData | null {
     department: "",
     kana: "",
     remarks: "",
-    supplyList: [],
+    supply: "",
     receptionStatus: false,
   };
 
@@ -84,7 +84,7 @@ function getStudentData(studentId: string): StudentData | null {
 
       // サプライ品購入済みの場合
       if (!(sheet.getRange(i, 6).getValue() === "")) {
-        studentData.supplyList = sheet.getRange(i, 6).getValue().split(",");
+        studentData.supply= sheet.getRange(i, 6).getValue();
       }
 
       // 受付済みの場合
@@ -135,6 +135,26 @@ function editRemarks(studentId: string, remarks: string): boolean {
   for (let i = 2; i <= sprt_lastrow; i++) {
     if (sheet.getRange(i, 1).getValue() === studentId) {
       sheet.getRange(i, 5).setValue(remarks); // 該当者の備考欄を編集
+      status = true;
+    }
+  }
+
+  return status;
+}
+
+// 受付をキャンセルする関数
+function cancelReception(studentId: string): boolean {
+  const sheet = getActiveSheet();
+  const sprt_values = sheet.getRange('A:A').getValues();
+  const sprt_lastrow = sprt_values.filter(String).length;
+
+  // 走査結果
+  let status: boolean = false;
+
+  for (let i = 2; i <= sprt_lastrow; i++) {
+    if (sheet.getRange(i, 1).getValue() === studentId) {
+      sheet.getRange(i, 7).setValue(""); // 該当者の受付状況を「」に変更
+      sheet.getRange(i, 1, 1, 7).setBackground("#ffffff"); // 受付完了者の行の背景色を白に変更
       status = true;
     }
   }

@@ -1,8 +1,27 @@
+import { useState, useContext } from 'react'
 import RemarkInputBox from '../RemarkInputBox'
 import { useStudentData } from '../../hooks/useStudentData'
+import { StateStore } from '../../src/App'
 import styles from './styles.module.scss'
 import { departmentColorList } from '../../src/types';
-import SupplyViewBox from '../SupplyViewBox';
+import Button from '../Button';
+import Modal from 'react-modal';
+import { cancelReception } from '../../src/gas';
+
+const customStyles = {
+    overlay: {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 10000,
+    },
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+    },
+};
 
 const colorList: departmentColorList = [
     {
@@ -31,15 +50,51 @@ const colorList: departmentColorList = [
     }
 ]
 
-export default function UserView({ studentId }: { studentId: string }) {
+function getDepartmentColor(departmentName: string) {
+    const color = colorList.find((element) => element.departmentName === departmentName)
+    if (!color) return styles.departmentdefault;
+    return color?.styleName
+}
 
+export default function UserView() {
+    const { setStatusCode, studentId, setStudentId, inputEl } = useContext(StateStore);
     const { data, isLoading } = useStudentData(studentId);
 
-    function getDepartmentColor(departmentName: string) {
-        const color = colorList.find((element) => element.departmentName === departmentName)
-        if (!color) return styles.departmentdefault;
-        return color?.styleName
+
+    const [modalIsOpen, setIsOpen] = useState(false);
+
+    function openModal() {
+        setIsOpen(true);
     }
+
+    function closeModal() {
+        setIsOpen(false);
+    }
+
+    function reset() {
+        // 学籍番号をリセット
+        setStudentId('')
+        // フォーカスをリセット
+        if (inputEl.current) {
+            inputEl.current.value = ''
+            inputEl.current.focus()
+        }
+    }
+
+    async function onClickCancelReception() {
+        // 受付取消処理
+        const res = await cancelReception(studentId);
+        if (res) {
+            // ステータスコードを更新
+            setStatusCode(202);
+
+        } else {
+            setStatusCode(500);
+        }
+        closeModal();
+        reset();
+    }
+
 
     // データ取得中
     if (isLoading) {
@@ -68,40 +123,55 @@ export default function UserView({ studentId }: { studentId: string }) {
                                 受付状況
                             </h6>
                             <div className={styles.viewBox}>
-                                {data?.receptionStatus ? <div className={styles.doneReception}>受付済</div> : <div>未受付</div>}
-                                {data?.receptionStatus && <div className={styles.description}>※受付票の印字ミスなどで受付取消を行う場合はシートを直接編集してください。</div>}
+                                <div className={styles.controlBtnBox}>
+                                    {data?.receptionStatus ? <div className={styles.doneReception}>受付済</div> : <div>未受付</div>}
+                                    <div className={styles.smallbtn}>
+                                        <Button status="secondary" onClick={() => { openModal() }} disabled={data?.receptionStatus ? false : true}>受付を取消する</Button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div className="card mb-2">
                         <div className="card-body">
                             <h6 className="card-subtitle mb-2 text-body-secondary">氏名</h6>
-                            <div className={styles.viewBox}>{data?.studentName ? data.studentName : "NaN"}</div>
+                            <div className={styles.viewBox}>{data?.studentName ? data.studentName : "なし"}</div>
                         </div>
                     </div>
+                </div>
 
-                    <div className="card mb-2">
-                        <div className="card-body">
-                            <h6 className="card-subtitle mb-2 text-body-secondary">読み仮名</h6>
-                            <div className={styles.viewBox}>{data?.kana ? data.kana : "NaN"}</div>
-                        </div>
-                    </div>
-
+                <div className="col-sm-6">
                     <div className="card mb-2">
                         <div className="card-body">
                             <h6 className="card-subtitle mb-2 text-body-secondary">学部</h6>
                             <div className={styles.viewBox}>
                                 <span className={getDepartmentColor(data.department)}>
-                                    {data?.department ? data.department : "NaN"}
+                                    {data?.department ? data.department : "なし"}
                                 </span>
                             </div>
                         </div>
+                    </div>
 
+
+                    <div className="card mb-2">
+                        <div className="card-body">
+                            <h6 className="card-subtitle mb-2 text-body-secondary">フリガナ</h6>
+                            <div className={styles.viewBox}>{data?.kana ? data.kana : "なし"}</div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div className="col-sm-6">
-                    <SupplyViewBox supplyLists={data?.supplyList ? data.supplyList : []} />
+            <div className="row">
+                <div className="col py-2">
+                    <div className="card">
+                        <div className="card-body">
+                            <h6 className="card-subtitle mb-2 text-body-secondary">サプライ品</h6>
+                            <div className={styles.viewBox}>
+                                {data?.supply ? data.supply : "なし"}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -110,6 +180,25 @@ export default function UserView({ studentId }: { studentId: string }) {
                     <RemarkInputBox studentId={data.studentId} originalRemarks={data?.remarks ? data.remarks : ""} />
                 </div>
             </div>
+
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={closeModal}
+                style={customStyles}
+            >
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className={styles.modalTitle}>受付の取消</h5>
+                    </div>
+                    <div className={styles.modalBody}>
+                        <p>受付の取り消し処理を行います。この操作は中断できません。よろしいですか？</p>
+                    </div>
+                    <div className={styles.modalBtnBox}>
+                        <Button onClick={() => { closeModal() }}>キャンセル</Button>
+                        <Button status="danger" onClick={() => { onClickCancelReception() }}>実行</Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     )
 }

@@ -1,35 +1,36 @@
-import { useState, createContext } from 'react'
+import { useState, createContext, useRef } from 'react'
 import StudentIdInputBox from '../components/StudentIdInputBox'
 import Footer from '../components/Footer'
 import UserTable from '../components/UserView'
 import MessageBox from '../components/MessageBox'
 import { StudentData } from './types'
 
-type MsgBoxProps = {
-  statusCode: number
-  setStatusCode: React.Dispatch<React.SetStateAction<number>>
+type StateStoreProps = {
+  studentId: string // 学籍番号
+  statusCode: number // ステータスコード
+  data: StudentData // 学生データ
+  inputEl: React.RefObject<HTMLInputElement> // 学籍番号入力ボックスのRef
+  setStudentId: React.Dispatch<React.SetStateAction<string>> // 学籍番号のセッター
+  setStatusCode: React.Dispatch<React.SetStateAction<number>> // ステータスコードのセッター
+  setData: React.Dispatch<React.SetStateAction<StudentData>> // 学生データのセッター
+
 }
 
-type StudentDataStoreProps = {
-  data: StudentData
-  setData: React.Dispatch<React.SetStateAction<StudentData>>
-}
-
-export const StatusMsg = createContext<MsgBoxProps>({
+export const StateStore = createContext<StateStoreProps>({
+  studentId: '',
   statusCode: 0,
-  setStatusCode: () => { }
-})
-
-export const StudentDataStore = createContext<StudentDataStoreProps>({
   data: {
     studentId: '',
     studentName: '',
     kana: '',
     department: '',
     remarks: '',
-    supplyList: [],
+    supply: "",
     receptionStatus: false,
   },
+  inputEl: { current: null },
+  setStudentId: () => { },
+  setStatusCode: () => { },
   setData: () => { }
 })
 
@@ -42,23 +43,23 @@ function App() {
     kana: '',
     department: '',
     remarks: '',
-    supplyList: [],
+    supply: "",
     receptionStatus: false,
   })
+
+  const inputEl = useRef<HTMLInputElement>(null)
 
   return (
     <>
       <div className="container py-4">
-        <StatusMsg.Provider value={{ statusCode: statusCode, setStatusCode: setStatusCode }}>
-          <StudentDataStore.Provider value={{ data: data, setData: setData }}>
-            <StudentIdInputBox studentId={studentId} setStudentId={setStudentId} />
+        <StateStore.Provider value={{ studentId, setStudentId, statusCode, setStatusCode, data, setData, inputEl}}>
+            <StudentIdInputBox />
             <MessageBox />
             {
-              studentId && <UserTable studentId={studentId} />
+              studentId && <UserTable />
             }
             <Footer />
-          </StudentDataStore.Provider>
-        </StatusMsg.Provider>
+        </StateStore.Provider>
       </div>
     </>
   )

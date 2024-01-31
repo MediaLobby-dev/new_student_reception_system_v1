@@ -19,6 +19,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
+    "react-modal": "^3.16.1",
     "sass": "^1.70.0",
     "vite-plugin-singlefile": "^1.0.0"
   },
@@ -26,6 +27,7 @@
     "@types/google-apps-script": "^1.0.78",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
+    "@types/react-modal": "^3.16.3",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
