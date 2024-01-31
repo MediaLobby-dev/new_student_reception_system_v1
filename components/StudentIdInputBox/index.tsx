@@ -2,7 +2,7 @@ import { useContext, useRef } from "react"
 import { StatusMsg } from "../../src/App"
 import Button from "../Button"
 import { StudentDataStore } from "../../src/App"
-import { print } from "../../src/printSystem"
+import { printRecipt } from "../../src/printSystem"
 
 import { GrPowerReset } from "react-icons/gr";
 import { GrCheckboxSelected } from "react-icons/gr";
@@ -87,7 +87,7 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
                     <Button onClick={() => reset()}>
                         <GrPowerReset /> リセット
                     </Button>
-                    <Button status="success" onClick={() => { print(studentId, data.studentName, data.kana, reset) }} disabled={disabledCheck()} >
+                    <Button status="success" onClick={() => { printRecipt(studentId, data.studentName, data.kana, reset) }} disabled={disabledCheck()} >
                         <GrCheckboxSelected /> 確認済み
                     </Button>
                 </div>

@@ -7,7 +7,7 @@ export default function MessageBox() {
     // 4秒後にメッセージを消す
     setTimeout(() => {
         statusCode && statusCode.toString().startsWith("2") && setStatusCode(0);
-    }, 5000);
+    }, 2500);
 
     switch (statusCode) {
         case 0: // Not yet
