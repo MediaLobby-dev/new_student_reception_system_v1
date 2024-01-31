@@ -1,7 +1,7 @@
 import { make_accepted_processing } from "./gas"
 
 // レシートプリント
-export async function print(studentId: string, studentName: string, kana: string, reset: () => void) {
+export async function printRecipt(studentId: string, studentName: string, kana: string, reset: () => void) {
     // プリントページを開く
     const printPage = window.open(`https://script.google.com/macros/s/${import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID}/exec?studentId=${studentId}&studentName=${studentName}&kana=${kana}`)
 

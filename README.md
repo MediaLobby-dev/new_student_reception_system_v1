@@ -59,6 +59,11 @@ volta install pnpm@8.14.1
 volta install @google/clasp
 ```
 
+#### typescriptのインストール
+```bash
+volta install typescript
+```
+
 ### 1. このレポジトリをクローンする
 ```bash
 git clone

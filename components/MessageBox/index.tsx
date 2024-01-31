@@ -2,7 +2,13 @@ import { useContext } from "react";
 import { StatusMsg } from "../../src/App";
 
 export default function MessageBox() {
-    const { statusCode } = useContext(StatusMsg);
+    const { statusCode, setStatusCode } = useContext(StatusMsg);
+
+    // 4秒後にメッセージを消す
+    setTimeout(() => {
+        statusCode && statusCode.toString().startsWith("2") && setStatusCode(0);
+    }, 2500);
+
     switch (statusCode) {
         case 0: // Not yet
             return <></>;
