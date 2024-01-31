@@ -1,27 +1,18 @@
-import { useContext, useRef } from "react"
-import { StatusMsg } from "../../src/App"
+import { useContext } from "react"
 import Button from "../Button"
-import { StudentDataStore } from "../../src/App"
+import { StateStore } from "../../src/App"
 import { print } from "../../src/printSystem"
 
 import { GrPowerReset } from "react-icons/gr";
 import { GrCheckboxSelected } from "react-icons/gr";
-
-type Props = {
-    studentId: string,
-    setStudentId: React.Dispatch<React.SetStateAction<string>>
-}
 
 if (import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === undefined || import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === "") {
     throw new Error("[Error] VITE_PRINT_SERVICE_DEPLOY_ID を設定してください。")
 }
 
 
-export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
-    const { statusCode, setStatusCode } = useContext(StatusMsg);
-    const { data } = useContext(StudentDataStore);
-
-    const inputEl = useRef<HTMLInputElement>(null)
+export default function StudentIdInputBox() {
+    const { statusCode, studentId, setStudentId, data, inputEl, setStatusCode} = useContext(StateStore);
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value.length === 0) {
@@ -32,8 +23,6 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
 
     // 学籍番号の入力ボックスをリセット
     function reset() {
-        // ステータスコードをリセット
-        setStatusCode(0)
         // 学籍番号をリセット
         setStudentId('')
         // フォーカスをリセット
@@ -68,6 +57,13 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
         return false
     }
 
+    function printSuccessfully() {
+        // ステータスコードを更新
+        setStatusCode(203);
+        // リセット
+        reset()
+    }
+
 
     return (
         <>
@@ -87,7 +83,7 @@ export default function StudentIdInputBox({ studentId, setStudentId }: Props) {
                     <Button onClick={() => reset()}>
                         <GrPowerReset /> リセット
                     </Button>
-                    <Button status="success" onClick={() => { print(studentId, data.studentName, data.kana, reset) }} disabled={disabledCheck()} >
+                    <Button status="success" onClick={() => { print(studentId, data.studentName, data.kana, printSuccessfully) }} disabled={disabledCheck()} >
                         <GrCheckboxSelected /> 確認済み
                     </Button>
                 </div>

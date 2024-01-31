@@ -2,7 +2,7 @@ import styles from './styles.module.scss'
 import classNames from 'classnames'
 
 type Props = {
-    status?: "primary" | "success" | "danger" | "warning",
+    status?: "primary" | "success" | "danger" | "warning" | "secondary",
     onClick: () => void
     disabled?: boolean
     children?: React.ReactNode
@@ -41,6 +41,23 @@ export default function Button({ status, children, onClick, disabled }: Props) {
         case "danger":
             return (
                 <button className={classNames(styles.button, styles.danger)} onClick={onClick}>
+                    <div className={styles.content}>
+                        {children}
+                    </div>
+                </button>
+            )
+        case "warning":
+            return (
+                <button className={classNames(styles.button, styles.warning)} onClick={onClick}>
+                    <div className={styles.content}>
+                        {children}
+                    </div>
+                </button>
+            )
+
+        case "secondary":
+            return (
+                <button className={classNames(styles.button, styles.secondary)} onClick={onClick}>
                     <div className={styles.content}>
                         {children}
                     </div>

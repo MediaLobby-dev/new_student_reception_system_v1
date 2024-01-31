@@ -31,3 +31,13 @@ export function editRemarks(studentId: string, remarks: string) {
             .editRemarks(studentId, remarks);
     });
 }
+
+// 受付をキャンセルする関数を呼び出す
+export function cancelReception(studentId: string) {
+    return new Promise((resolve, reject) => {
+        google.script.run
+            .withSuccessHandler((msg: string) => resolve(msg))
+            .withFailureHandler((e: any) => reject(e)) 
+            .cancelReception(studentId);
+    });
+}
