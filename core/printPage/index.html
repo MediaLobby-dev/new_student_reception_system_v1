@@ -65,8 +65,7 @@
 
         .border {
             border: 0;
-            border-bottom: 2px dashed #ccc;
-            background: #858585;
+            border-bottom: 2px solid #000;
         }
     </style>
 </head>
@@ -147,10 +146,13 @@
 
             setTimeout(function () {
                 window.print();
-            }, 200);
+            }, 1000);
+
+            setTimeout(function () {
+                window.close();
+            }, 2000);
         }
     </script>
 
 </body>
-
 </html>

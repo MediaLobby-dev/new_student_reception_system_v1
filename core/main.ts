@@ -3,13 +3,15 @@ const SHEET_NAME = "新入生DB";
 
 // 学生データ型
 type StudentData = {
-  studentId: string;
-  studentName: string;
-  kana: string;
-  department: string;
-  remarks: string;
-  supply: string;
-  receptionStatus: boolean;
+  studentId: string; // 学籍番号
+  studentName: string; // 氏名
+  kana: string; // カナ
+  department: string; // 学科
+  remarks: string; // 備考欄
+  supply: string; // サプライ品購入状況
+  isDeprecatedPC: boolean; // 非推奨PCフラグ
+  isNeedNotify: boolean; // 案内所要フラグ
+  receptionStatus: boolean; // 受付状況
 }
 
 // ======================================================================================
@@ -26,7 +28,7 @@ function onOpen(): void {
 
 // モーダルダイアログを表示
 function showModal(): void {
-  const container: GoogleAppsScript.HTML.HtmlOutput = HtmlService.createHtmlOutputFromFile("webpanel/index.html").setWidth(1200).setHeight(1000);
+  const container: GoogleAppsScript.HTML.HtmlOutput = HtmlService.createHtmlOutputFromFile("webpanel/index.html").setWidth(1300).setHeight(1000);
   SpreadsheetApp.getUi().showModalDialog(container, "新入生受付システム");
 }
 
@@ -71,6 +73,8 @@ function getStudentData(studentId: string): StudentData | null {
     kana: "",
     remarks: "",
     supply: "",
+    isDeprecatedPC: false,
+    isNeedNotify: false,
     receptionStatus: false,
   };
 
@@ -81,15 +85,21 @@ function getStudentData(studentId: string): StudentData | null {
       studentData.kana = sheet.getRange(i, 3).getValue();
       studentData.department = sheet.getRange(i, 4).getValue();
       studentData.remarks = sheet.getRange(i, 5).getValue();
-
-      // サプライ品購入済みの場合
-      if (!(sheet.getRange(i, 6).getValue() === "")) {
-        studentData.supply= sheet.getRange(i, 6).getValue();
-      }
+      studentData.supply = sheet.getRange(i, 6).getValue();
 
       // 受付済みの場合
       if (!(sheet.getRange(i, 7).getValue() === "")) {
         studentData.receptionStatus = true;
+      }
+
+      // 非推奨判定
+      if (!(sheet.getRange(i, 8).getValue() === "")) {
+        studentData.isDeprecatedPC = true;
+      }
+
+      // 案内所要フラグ
+      if (!(sheet.getRange(i, 9).getValue() === "")) {
+        studentData.isNeedNotify = true;
       }
     }
   }

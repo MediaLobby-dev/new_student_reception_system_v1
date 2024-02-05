@@ -10,10 +10,11 @@ type StateStoreProps = {
   statusCode: number // ステータスコード
   data: StudentData // 学生データ
   inputEl: React.RefObject<HTMLInputElement> // 学籍番号入力ボックスのRef
+  isDeprecatedPCReception: boolean // 非推奨機受付モードかどうか
   setStudentId: React.Dispatch<React.SetStateAction<string>> // 学籍番号のセッター
   setStatusCode: React.Dispatch<React.SetStateAction<number>> // ステータスコードのセッター
   setData: React.Dispatch<React.SetStateAction<StudentData>> // 学生データのセッター
-
+  setIsDeprecatedPCReception: React.Dispatch<React.SetStateAction<boolean>> // 非推奨機受付モードのセッター
 }
 
 export const StateStore = createContext<StateStoreProps>({
@@ -27,11 +28,15 @@ export const StateStore = createContext<StateStoreProps>({
     remarks: '',
     supply: "",
     receptionStatus: false,
+    isNeedNotify: false,
+    isDeprecatedPC: false,
   },
   inputEl: { current: null },
+  isDeprecatedPCReception: false,
   setStudentId: () => { },
   setStatusCode: () => { },
-  setData: () => { }
+  setData: () => { },
+  setIsDeprecatedPCReception: () => { },
 })
 
 function App() {
@@ -45,20 +50,23 @@ function App() {
     remarks: '',
     supply: "",
     receptionStatus: false,
+    isNeedNotify: false,
+    isDeprecatedPC: false,
   })
+  const [isDeprecatedPCReception, setIsDeprecatedPCReception] = useState<boolean>(false)
 
   const inputEl = useRef<HTMLInputElement>(null)
 
   return (
     <>
       <div className="container py-4">
-        <StateStore.Provider value={{ studentId, setStudentId, statusCode, setStatusCode, data, setData, inputEl}}>
-            <StudentIdInputBox />
-            <MessageBox />
-            {
-              studentId && <UserTable />
-            }
-            <Footer />
+        <StateStore.Provider value={{ studentId, setStudentId, statusCode, setStatusCode, data, setData, inputEl, isDeprecatedPCReception, setIsDeprecatedPCReception }}>
+          <StudentIdInputBox />
+          <MessageBox />
+          {
+            studentId && <UserTable />
+          }
+          <Footer />
         </StateStore.Provider>
       </div>
     </>
