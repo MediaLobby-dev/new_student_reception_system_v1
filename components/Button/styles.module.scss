@@ -61,6 +61,16 @@
     }
 }
 
+.inportant{
+    border: 1px solid #c31010;
+    background-color: #fff;
+    color: #c31010;;
+    box-shadow: 0 0 5px #ccc;
+    &:hover{
+        opacity: 0.8;
+    }
+}
+
 .disabled{
     background-color: #b8b8b8;
     color: #4e4e4e;

@@ -12,17 +12,23 @@ if (import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === undefined || import.meta.en
 
 
 export default function StudentIdInputBox() {
-    const { statusCode, studentId, setStudentId, data, inputEl, setStatusCode} = useContext(StateStore);
+    const { statusCode, studentId, setStudentId, data, inputEl, setStatusCode } = useContext(StateStore);
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value.length === 0) {
-            reset()
+            // 学籍番号をリセット
+            setStudentId('')
+            // フォーカスをリセット
+            if (inputEl.current) {
+                inputEl.current.value = ''
+                inputEl.current.focus()
+            }
         }
         setStudentId(e.target.value);
     }
 
-    // 学籍番号の入力ボックスをリセット
-    function reset() {
+    const inputReset = () => {
+        setStatusCode(0)
         // 学籍番号をリセット
         setStudentId('')
         // フォーカスをリセット
@@ -60,8 +66,13 @@ export default function StudentIdInputBox() {
     function printSuccessfully() {
         // ステータスコードを更新
         setStatusCode(203);
-        // リセット
-        reset()
+        // 学籍番号をリセット
+        setStudentId('')
+        // フォーカスをリセット
+        if (inputEl.current) {
+            inputEl.current.value = ''
+            inputEl.current.focus()
+        }
     }
 
 
@@ -80,7 +91,7 @@ export default function StudentIdInputBox() {
                     </span>
                 </div>
                 <div className="col-auto">
-                    <Button onClick={() => reset()}>
+                    <Button onClick={() => inputReset()}>
                         <GrPowerReset /> リセット
                     </Button>
                     <Button status="success" onClick={() => { printRecipt(studentId, data.studentName, data.kana, printSuccessfully) }} disabled={disabledCheck()} >

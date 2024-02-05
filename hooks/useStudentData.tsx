@@ -14,7 +14,7 @@ export function useStudentData(studentId: string) {
         data: null,
     });
 
-    const { setStatusCode, setData } = useContext(StateStore);
+    const { setStatusCode, setData, isDeprecatedPCReception } = useContext(StateStore);
 
     useEffect(() => {
         if (query.data) setData(query.data);
@@ -41,13 +41,46 @@ export function useStudentData(studentId: string) {
                         data: null,
                     });
                     setStatusCode(404);
-                } else {
+                    return;
+                }
+
+                // 告知事項ありの場合
+                if (data.isNeedNotify) {
                     setQuery({
                         isLoading: false,
                         data: data,
                     });
-                    setStatusCode(200);
+                    setStatusCode(401);
+                    return;
                 }
+
+                console.log(isDeprecatedPCReception, data.isDeprecatedPC);
+
+                // 推奨機の人が非推奨機の受付会場に来た場合
+                if (isDeprecatedPCReception && !data.isDeprecatedPC) {
+                    setQuery({
+                        isLoading: false,
+                        data: data,
+                    });
+                    setStatusCode(4021);
+                    return;
+                }
+
+                // 非推奨機の人が推奨機の受付会場に来た場合
+                if (!isDeprecatedPCReception && data.isDeprecatedPC) {
+                    setQuery({
+                        isLoading: false,
+                        data: data,
+                    });
+                    setStatusCode(4022);
+                    return;
+                }
+
+                setQuery({
+                    isLoading: false,
+                    data: data,
+                });
+                setStatusCode(200);
             }).catch((err) => {
                 console.error(err);
                 setQuery({
