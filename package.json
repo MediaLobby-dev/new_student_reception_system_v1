@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "initPush": "dotenv -- bash -c 'clasp push && clasp deploy --description $(date +'%Y.%m.%d.%I.%M.%S')'",
     "push": "dotenv -- bash -c 'clasp push && clasp deploy --description $(date +'%Y.%m.%d.%I.%M.%S') --deploymentId $VITE_PRINT_SERVICE_DEPLOY_ID'",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "viewPath" : "pwd | echo $(cat)'/core'"
   },
   "dependencies": {
     "@google/clasp": "^2.4.2",
