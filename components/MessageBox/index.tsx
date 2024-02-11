@@ -1,32 +1,15 @@
 import { useContext } from "react";
 import { StateStore } from "../../src/App";
-import { ErrorCodeList}  from "../../src/types";
+import { ErrorCodeList } from "../../src/types";
 
 export default function MessageBox() {
-    const { statusCode, setStatusCode } = useContext(StateStore);
-
-    // 4秒後にメッセージを消す
-    setTimeout(() => {
-        if(statusCode && statusCode === 201) return;
-        statusCode && statusCode.toString().startsWith("2") && setStatusCode(1);
-    }, 5000);
+    const { statusCode } = useContext(StateStore);
 
     const message = ErrorCodeList.find((element) => element.code === statusCode)?.message;
     const subMessage = ErrorCodeList.find((element) => element.code === statusCode)?.subMessage;
 
-    // ステータスコードが未定義、0、1の場合は、非表示
-    if (statusCode === 0 || statusCode === 1) return <></>;
-
-    // ステータスコードが2xxの場合は、成功メッセージを表示
-    if (statusCode.toString().startsWith("2")) {
-        return (
-            <div className="container py-2">
-                <div className="alert alert-success" role="alert">
-                    <p className="mb-0">{message ? message : ""}</p>
-                </div>
-            </div>
-        )
-    }
+    // ステータスコードが未定義、0の場合は、非表示
+    if (!statusCode) return <></>
 
     // ステータスコードが405の場合は、情報メッセージを表示
     if (statusCode === 405) {
@@ -35,6 +18,50 @@ export default function MessageBox() {
                 <div className="alert alert-info" role="alert">
                     <p className="mb-0">{message ? message : ""}</p>
                     <p className="mb-0">{subMessage ? subMessage : ""}</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (statusCode === 401) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                <h4 className="alert-heading fw-bold">告知事項あり</h4>
+                <p>{message ? message : ""}</p>
+                <hr />
+                <p className="mb-0">{subMessage ? subMessage : ""}</p>
+            </div>
+        )
+    }
+
+    if (statusCode === 4021) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                <h4 className="alert-heading fw-bold">推奨機です</h4>
+                <p>{message ? message : ""}</p>
+                <hr />
+                <p className="mb-0">{subMessage ? subMessage : ""}</p>
+            </div>
+        )
+    }
+
+    if (statusCode === 4022) {
+        return (
+            <div className="alert alert-danger" role="alert">
+                <h4 className="alert-heading fw-bold">非推奨機です</h4>
+                <p>{message ? message : ""}</p>
+                <hr />
+                <p className="mb-0">{subMessage ? subMessage : ""}</p>
+            </div>
+        )
+    }
+
+    // ステータスコードが2xxの場合は、成功メッセージを表示
+    if (statusCode.toString().startsWith("2")) {
+        return (
+            <div className="container py-2">
+                <div className="alert alert-success" role="alert">
+                    <p className="mb-0">{message ? message : ""}</p>
                 </div>
             </div>
         )

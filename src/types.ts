@@ -1,12 +1,15 @@
 export type StudentData = {
-    studentId: string;
-    studentName: string;
-    kana: string;
-    department: string;
-    remarks: string;
-    supply: string;
-    receptionStatus: boolean;
+    studentId: string; // 学籍番号
+    studentName: string; // 氏名
+    kana: string; // カナ
+    department: string; // 学科
+    remarks: string; // 備考欄
+    supply: string; // サプライ品購入状況
+    isDeprecatedPC: boolean; // 非推奨PCフラグ
+    isNeedNotify: boolean; // 案内所要フラグ
+    receptionStatus: boolean; // 受付状況
 }
+
 export type queryProps = {
     isLoading: boolean,
     data: StudentData | null,
@@ -46,6 +49,21 @@ export const ErrorCodeList: ErrorCode[] = [
         code: 400,
         message: "不正なリクエストです。",
         subMessage: "エラーが解決しない場合は、開発者にお問い合わせください。",
+    },
+    {
+        code: 401,
+        message: "受付できません。所定の事務処理が完了していない可能性があります。",
+        subMessage: "案内所へ誘導してください。",
+    },
+    {
+        code: 4021,
+        message: "推奨機を購入済みの学生です。",
+        subMessage: "推奨機ガイダンス会場へ誘導してください。",
+    },
+    {
+        code: 4022,
+        message: "非推奨機をお持ちの学生です。",
+        subMessage: "非推奨機ガイダンス会場へ誘導してください。",
     },
     {
         code: 404,

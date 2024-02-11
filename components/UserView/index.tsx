@@ -60,7 +60,7 @@ export default function UserView() {
     const { setStatusCode, studentId, setStudentId, inputEl } = useContext(StateStore);
     const { data, isLoading } = useStudentData(studentId);
 
-
+    const [isLoadingModal, setIsLoadingModal] = useState(false);
     const [modalIsOpen, setIsOpen] = useState(false);
 
     function openModal() {
@@ -82,6 +82,7 @@ export default function UserView() {
     }
 
     async function onClickCancelReception() {
+        setIsLoadingModal(true);
         // 受付取消処理
         const res = await cancelReception(studentId);
         if (res) {
@@ -114,10 +115,7 @@ export default function UserView() {
             <div className="row">
                 <div className="col-sm-6">
                     <div className="card mb-2">
-                        <div className="card-body"
-                            data-tooltip-id="receptionStatusTooltip"
-                            data-tooltip-content="受付票の印字ミスなどで受付取消を行う場合はシートを直接編集してください。"
-                            data-tooltip-place="top">
+                        <div className="card-body">
                             <h6
                                 className="card-subtitle mb-2 text-body-secondary">
                                 受付状況
@@ -125,9 +123,13 @@ export default function UserView() {
                             <div className={styles.viewBox}>
                                 <div className={styles.controlBtnBox}>
                                     {data?.receptionStatus ? <div className={styles.doneReception}>受付済</div> : <div>未受付</div>}
-                                    <div className={styles.smallbtn}>
-                                        <Button status="secondary" onClick={() => { openModal() }} disabled={data?.receptionStatus ? false : true}>受付を取消する</Button>
-                                    </div>
+                                    {
+                                        data?.receptionStatus ?
+                                            <div className={styles.smallbtn}>
+                                                <Button status="important" onClick={() => { openModal() }}>受付を取消する</Button>
+                                            </div> : <></>
+                                    }
+
                                 </div>
                             </div>
                         </div>
@@ -195,7 +197,14 @@ export default function UserView() {
                     </div>
                     <div className={styles.modalBtnBox}>
                         <Button onClick={() => { closeModal() }}>キャンセル</Button>
-                        <Button status="danger" onClick={() => { onClickCancelReception() }}>実行</Button>
+                        <Button status="danger" onClick={() => { onClickCancelReception() }} disabled={isLoadingModal}>
+                            {isLoadingModal ?
+                                <div className="spinner-border" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div> :
+                                "実行"
+                            }
+                        </Button>
                     </div>
                 </div>
             </Modal>
