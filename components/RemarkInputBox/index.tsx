@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { StateStore } from "../../src/App";
 import { editRemarks } from "../../src/gas";
+
+import styles from "./styles.module.scss";
+
+import Button from "../Button";
 
 export default function RemarkInputBox({ studentId, originalRemarks }: { studentId: string, originalRemarks: string }) {
     const [remarks, setRemarks] = useState<string>(originalRemarks);
+    const { statusCode, setStatusCode } = useContext(StateStore);
 
     async function updateRemarks(): Promise<void> {
-        await editRemarks(studentId, remarks);
+        const res = await editRemarks(studentId, remarks);
+        if (res === true) {
+            setStatusCode(201);
+        } else {
+            setStatusCode(500);
+        }
     }
 
     return (
@@ -14,7 +25,18 @@ export default function RemarkInputBox({ studentId, originalRemarks }: { student
                 <div className="card-body">
                     <h6 className="card-subtitle mb-2 text-body-secondary">備考欄</h6>
                     <textarea className="form-control" rows={3} value={remarks} onChange={(e) => { setRemarks(e.target.value) }}></textarea>
-                    <button className="btn btn-primary mt-2" onClick={() => updateRemarks()}>更新</button>
+
+                    <div className={styles.controlBox}>
+                        <Button status="primary" onClick={() => updateRemarks()}>更新</Button>
+                        <div className={styles.statusMsg}>
+                            {
+                                statusCode === 201 ? <span className={styles.success}>更新しました</span> : <></>
+                            }
+                            {
+                                statusCode === 500 ? <span className={styles.err}>更新に失敗しました。画面上部のメッセージをご確認ください。</span> : <></>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </>

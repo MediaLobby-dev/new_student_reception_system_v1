@@ -13,12 +13,12 @@ export function getStudentData (studentId: string): Promise<StudentData> {
 }
 
 // GAS側からWebパネルから受け取った位置情報の行の色を変更する関数を呼び出す
-export function fillingLine(studentId: string): Promise<string> {
+export function make_accepted_processing(studentId: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
         google.script.run
-            .withSuccessHandler((msg: string) => resolve(msg))
+            .withSuccessHandler((msg: boolean) => resolve(msg))
             .withFailureHandler((e: any) => reject(e)) 
-            .fillingLine(studentId);
+            .make_accepted_processing(studentId);
     });
 }
 
@@ -28,6 +28,16 @@ export function editRemarks(studentId: string, remarks: string) {
         google.script.run
             .withSuccessHandler((msg: string) => resolve(msg))
             .withFailureHandler((e: any) => reject(e)) 
-            .editRemarks({studentId, remarks});
+            .editRemarks(studentId, remarks);
+    });
+}
+
+// 受付をキャンセルする関数を呼び出す
+export function cancelReception(studentId: string) {
+    return new Promise((resolve, reject) => {
+        google.script.run
+            .withSuccessHandler((msg: string) => resolve(msg))
+            .withFailureHandler((e: any) => reject(e)) 
+            .cancelReception(studentId);
     });
 }

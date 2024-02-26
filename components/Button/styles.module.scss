@@ -35,7 +35,7 @@
 }
 
 .danger{
-    background-color: #a20d0d;
+    background-color: #c31010;
     color: #fff;
     box-shadow: 0 0 5px #ccc;
     &:hover{
@@ -44,8 +44,27 @@
 }
 
 .warning{
-    background-color: #a2a20d;
+    background-color: #d7d70c;
     color: #fff;
+    box-shadow: 0 0 5px #ccc;
+    &:hover{
+        opacity: 0.8;
+    }
+}
+
+.secondary{
+    background-color: #797979;
+    color: #fff;
+    box-shadow: 0 0 5px #ccc;
+    &:hover{
+        opacity: 0.8;
+    }
+}
+
+.inportant{
+    border: 1px solid #c31010;
+    background-color: #fff;
+    color: #c31010;;
     box-shadow: 0 0 5px #ccc;
     &:hover{
         opacity: 0.8;

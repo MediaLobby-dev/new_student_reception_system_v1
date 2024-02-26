@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "gas-build": "clasp push && clasp deploy",
-    "build": "tsc && vite build && clasp push",
+    "initPush": "dotenv -- bash -c 'clasp push && clasp deploy --description $(date +'%Y.%m.%d.%I.%M.%S')'",
+    "push": "dotenv -- bash -c 'clasp push && clasp deploy --description $(date +'%Y.%m.%d.%I.%M.%S') --deploymentId $VITE_PRINT_SERVICE_DEPLOY_ID'",
+    "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "viewPath" : "pwd | echo $(cat)'/core'"
   },
   "dependencies": {
     "@google/clasp": "^2.4.2",
@@ -19,20 +21,23 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.0.1",
+    "react-modal": "^3.16.1",
     "sass": "^1.70.0",
     "vite-plugin-singlefile": "^1.0.0"
   },
   "devDependencies": {
     "@types/google-apps-script": "^1.0.78",
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@types/react-modal": "^3.16.3",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "dotenv-cli": "^7.3.0",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "vite": "^5.0.12"
   }
 }

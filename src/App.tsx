@@ -1,34 +1,42 @@
-import { useState, createContext } from 'react'
+import { useState, createContext, useRef } from 'react'
 import StudentIdInputBox from '../components/StudentIdInputBox'
 import Footer from '../components/Footer'
 import UserTable from '../components/UserView'
 import MessageBox from '../components/MessageBox'
 import { StudentData } from './types'
 
-type MsgBoxProps = {
-  statusCode: number
-  setStatusCode: React.Dispatch<React.SetStateAction<number>>
+type StateStoreProps = {
+  studentId: string // 学籍番号
+  statusCode: number // ステータスコード
+  data: StudentData // 学生データ
+  inputEl: React.RefObject<HTMLInputElement> // 学籍番号入力ボックスのRef
+  isDeprecatedPCReception: boolean // 非推奨機受付モードかどうか
+  setStudentId: React.Dispatch<React.SetStateAction<string>> // 学籍番号のセッター
+  setStatusCode: React.Dispatch<React.SetStateAction<number>> // ステータスコードのセッター
+  setData: React.Dispatch<React.SetStateAction<StudentData>> // 学生データのセッター
+  setIsDeprecatedPCReception: React.Dispatch<React.SetStateAction<boolean>> // 非推奨機受付モードのセッター
 }
 
-type StudentDataStoreProps = {
-  data: StudentData
-  setData: React.Dispatch<React.SetStateAction<StudentData>>
-}
-
-export const StatusMsg = createContext<MsgBoxProps>({
+export const StateStore = createContext<StateStoreProps>({
+  studentId: '',
   statusCode: 0,
-  setStatusCode: () => { }
-})
-
-export const StudentDataStore = createContext<StudentDataStoreProps>({
   data: {
     studentId: '',
     studentName: '',
-    pseudonym: '',
+    kana: '',
     department: '',
-    remarks: ''
+    remarks: '',
+    supply: "",
+    receptionStatus: false,
+    isNeedNotify: false,
+    isDeprecatedPC: false,
   },
-  setData: () => { }
+  inputEl: { current: null },
+  isDeprecatedPCReception: false,
+  setStudentId: () => { },
+  setStatusCode: () => { },
+  setData: () => { },
+  setIsDeprecatedPCReception: () => { },
 })
 
 function App() {
@@ -37,24 +45,29 @@ function App() {
   const [data, setData] = useState<StudentData>({
     studentId: '',
     studentName: '',
-    pseudonym: '',
+    kana: '',
     department: '',
-    remarks: ''
+    remarks: '',
+    supply: "",
+    receptionStatus: false,
+    isNeedNotify: false,
+    isDeprecatedPC: false,
   })
+  const [isDeprecatedPCReception, setIsDeprecatedPCReception] = useState<boolean>(false)
+
+  const inputEl = useRef<HTMLInputElement>(null)
 
   return (
     <>
       <div className="container py-4">
-        <StatusMsg.Provider value={{ statusCode: statusCode, setStatusCode: setStatusCode }}>
-          <StudentDataStore.Provider value={{ data: data, setData: setData }}>
-            <StudentIdInputBox studentId={studentId} setStudentId={setStudentId} />
-            <MessageBox />
-            {
-              studentId && <UserTable studentId={studentId} />
-            }
-            <Footer />
-          </StudentDataStore.Provider>
-        </StatusMsg.Provider>
+        <StateStore.Provider value={{ studentId, setStudentId, statusCode, setStatusCode, data, setData, inputEl, isDeprecatedPCReception, setIsDeprecatedPCReception }}>
+          <StudentIdInputBox />
+          <MessageBox />
+          {
+            studentId && <UserTable />
+          }
+          <Footer />
+        </StateStore.Provider>
       </div>
     </>
   )

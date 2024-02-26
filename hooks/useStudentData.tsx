@@ -1,8 +1,7 @@
 import { useEffect, useState, useContext } from 'react'
 import { getStudentData } from '../src/gas'
-import { StatusMsg } from '../src/App'
 import { StudentData } from '../src/types'
-import { StudentDataStore } from '../src/App'
+import { StateStore } from '../src/App'
 
 type queryProps = {
     isLoading: boolean,
@@ -15,8 +14,7 @@ export function useStudentData(studentId: string) {
         data: null,
     });
 
-    const { setData } = useContext(StudentDataStore);
-    const { setStatusCode } = useContext(StatusMsg);
+    const { setStatusCode, setData, isDeprecatedPCReception } = useContext(StateStore);
 
     useEffect(() => {
         if (query.data) setData(query.data);
@@ -35,21 +33,54 @@ export function useStudentData(studentId: string) {
             }
 
             // データ取得
-            await getStudentData(studentId).then((data) => {
+            await getStudentData(studentId).then((data: StudentData | null) => {
                 // 検索結果が空の場合
-                if (data.studentId === "") {
+                if (data === null) {
                     setQuery({
                         isLoading: false,
                         data: null,
                     });
                     setStatusCode(404);
-                } else {
+                    return;
+                }
+
+                // 告知事項ありの場合
+                if (data.isNeedNotify) {
                     setQuery({
                         isLoading: false,
                         data: data,
                     });
-                    setStatusCode(200);
+                    setStatusCode(401);
+                    return;
                 }
+
+                console.log(isDeprecatedPCReception, data.isDeprecatedPC);
+
+                // 推奨機の人が非推奨機の受付会場に来た場合
+                if (isDeprecatedPCReception && !data.isDeprecatedPC) {
+                    setQuery({
+                        isLoading: false,
+                        data: data,
+                    });
+                    setStatusCode(4021);
+                    return;
+                }
+
+                // 非推奨機の人が推奨機の受付会場に来た場合
+                if (!isDeprecatedPCReception && data.isDeprecatedPC) {
+                    setQuery({
+                        isLoading: false,
+                        data: data,
+                    });
+                    setStatusCode(4022);
+                    return;
+                }
+
+                setQuery({
+                    isLoading: false,
+                    data: data,
+                });
+                setStatusCode(200);
             }).catch((err) => {
                 console.error(err);
                 setQuery({
