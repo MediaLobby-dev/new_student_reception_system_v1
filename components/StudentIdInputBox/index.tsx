@@ -14,7 +14,7 @@ if (import.meta.env.VITE_PRINT_SERVICE_DEPLOY_ID === undefined || import.meta.en
 
 
 export default function StudentIdInputBox() {
-    const { statusCode, studentId, setStudentId, data, inputEl, setStatusCode, isDeprecatedPCReception } = useContext(StateStore);
+    const { statusCode, studentId, setStudentId, data, inputEl, setStatusCode, isDeprecatedPCReception, setIsLoading } = useContext(StateStore);
 
     const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.value.length === 0) {
@@ -78,9 +78,11 @@ export default function StudentIdInputBox() {
     }
 
     async function handlReceptionCheck() {
-        if (isDeprecatedPCReception) {
+        if (isDeprecatedPCReception) { // 後にリファクタリング
+            setIsLoading(true)
             await make_accepted_processing(studentId)
             printSuccessfully()
+            setIsLoading(false)
         } else {
             printRecipt(studentId, data.studentName, data.kana, printSuccessfully)
         }
