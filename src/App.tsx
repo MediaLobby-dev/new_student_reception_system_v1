@@ -68,13 +68,6 @@ function App() {
         <StateStore.Provider value={{ studentId, setStudentId, statusCode, setStatusCode, data, setData, inputEl, isDeprecatedPCReception, setIsDeprecatedPCReception, isLoading, setIsLoading }}>
           <StudentIdInputBox />
           <MessageBox />
-          {/* {
-            isLoading && (
-              <div className="spinner-border" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            )
-          } */}
           {
             studentId && <UserTable />
           }
