@@ -71,7 +71,7 @@ function App() {
   const inputEl = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    setIsLoading({ status: true, message: "データの事前取得中..." })
+    setIsLoading({ status: true, message: "しばらくお待ち下さい..." })
     getCache().then(() => {
       setIsLoading({ status: false, message: "" })
     })

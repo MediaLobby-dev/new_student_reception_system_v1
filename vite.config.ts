@@ -12,8 +12,7 @@ export default defineConfig({
     outDir: "core/webpanel",
   },
   define: {
-    __APP_VERSION__: JSON.stringify('v1.0.0 β'),
+    __APP_VERSION__: JSON.stringify('v2.0.0 RC lapidary'),
     __BUILD_DATE__: JSON.stringify(dateFormater(new Date())),
-    
   },
 })
