@@ -16,9 +16,11 @@ type StudentData = {
 
 // キャッシュストア型
 type CacheStore = {
-  get: (key: string) => string | null;
-  put: (key: string, value: string) => void;
-  remove: (key: string) => void;
+  getStudentData: () => Array<StudentData>;
+  setStudentData: (value: string) => void;
+  setLastRow: (value: string) => void;
+  setRemark: (num: number, value: string) => void;
+  setReceiptStatus: (num: number, value: string) => void;
 }
 
 // ======================================================================================
@@ -65,14 +67,24 @@ const getActiveSheet = (): GoogleAppsScript.Spreadsheet.Sheet => {
 const cacheStore = (): CacheStore => {
   const cache = CacheService.getScriptCache();
   return {
-    get: (key: string) => {
-      return cache.get(key);
+    getStudentData: () => {
+      return JSON.parse(cache.get("studentData") as string);
     },
-    put: (key: string, value: string) => {
-      cache.put(key, value);
+    setStudentData: (value: string) => {
+      cache.put("studentData", value);
     },
-    remove: (key: string) => {
-      cache.remove(key);
+    setLastRow: (value: string) => {
+      cache.put("lastRow", value);
+    },
+    setRemark: (num: number, value: string) => {
+      const db = JSON.parse(cache.get("studentData") as string);
+      db[num][4] = value;
+      cache.put("studentData", JSON.stringify(db));
+    },
+    setReceiptStatus: (num: number, value: string) => {
+      const db = JSON.parse(cache.get("studentData") as string);
+      db[num][6] = value;
+      cache.put("studentData", JSON.stringify(db));
     }
   }
 }
@@ -90,8 +102,8 @@ function cacheStudentData(): void {
   const db = sheet.getRange(2, 1, lastRow, 9).getValues();
 
   const cache = cacheStore();
-  cache.put("studentData", JSON.stringify(db));
-  cache.put("lastRow", lastRow.toString());
+  cache.setStudentData(JSON.stringify(db));
+  cache.setLastRow(lastRow.toString());
 }
 
 
@@ -99,12 +111,13 @@ function cacheStudentData(): void {
 function getStudentData(studentId: string): StudentData | null {
   const cache = cacheStore();
 
+  const db = cache.getStudentData();
+
   // 取得結果のキャッシュ
-  if (cache.get("studentData") === null || cache.get("lastRow") === null) {
+  if (db === null) {
     cacheStudentData();
   }
 
-  const db = JSON.parse(cache.get("studentData") as string);
   const lastRow = db.length - 1;
 
   const studentData: StudentData = {
@@ -159,7 +172,7 @@ function make_accepted_processing(studentId: string): boolean {
 
   // キャッシュからデータを取得
   const cache = cacheStore();
-  const db = JSON.parse(cache.get("studentData") as string);
+  const db = cache.getStudentData();
 
   const lastRow = db.length - 1;
 
@@ -170,6 +183,7 @@ function make_accepted_processing(studentId: string): boolean {
     if (db[i][0] === studentId) {
       sheet.getRange(i + 2, 7).setValue("受付済み"); // 該当者の受付状況を「受付済み」に変更
       sheet.getRange(i + 2, 1, 1, 7).setBackground("#bce2e8"); // 受付完了者の行の背景色を緑に変更
+      cache.setReceiptStatus(i, "受付済み"); // キャッシュの受付状況を更新
       status = true;
     }
   }
@@ -183,7 +197,7 @@ function editRemarks(studentId: string, remarks: string): boolean {
 
   // キャッシュからデータを取得
   const cache = cacheStore();
-  const db = JSON.parse(cache.get("studentData") as string);
+  const db = cache.getStudentData();
 
   const lastRow = db.length - 1;
 
@@ -193,6 +207,7 @@ function editRemarks(studentId: string, remarks: string): boolean {
   for (let i = 0; i <= lastRow; i++) {
     if (db[i][0] === studentId) {
       sheet.getRange(i + 2, 5).setValue(remarks); // 該当者の備考欄を編集
+      cache.setRemark(i, remarks); // 編集内容をキャッシュに反映
       status = true;
     }
   }
@@ -206,7 +221,7 @@ function cancelReception(studentId: string): boolean {
 
   // キャッシュからデータを取得
   const cache = cacheStore();
-  const db = JSON.parse(cache.get("studentData") as string);
+  const db = cache.getStudentData();
 
   const lastRow = db.length - 1;
 
@@ -217,6 +232,7 @@ function cancelReception(studentId: string): boolean {
     if (db[i][0] === studentId) {
       sheet.getRange(i + 2, 7).setValue(""); // 該当者の受付状況を「」に変更
       sheet.getRange(i + 2, 1, 1, 7).setBackground("#ffffff"); // 受付完了者の行の背景色を白に変更
+      cache.setReceiptStatus(i, ""); // キャッシュの受付状況をリセット
       status = true;
     }
   }

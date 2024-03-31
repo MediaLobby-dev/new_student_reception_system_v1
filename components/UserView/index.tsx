@@ -64,7 +64,7 @@ export default function UserView() {
     const [modalIsOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        setIsLoading({ status: isDataLoading, message: "データ取得中..." })
+        setIsLoading({ status: isDataLoading, message: "検索中..." })
     }, [isDataLoading, setIsLoading])
 
     function openModal() {
