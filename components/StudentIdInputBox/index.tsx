@@ -79,10 +79,10 @@ export default function StudentIdInputBox() {
 
     async function handlReceptionCheck() {
         if (isDeprecatedPCReception) { // 後にリファクタリング
-            setIsLoading(true)
+            setIsLoading({ status: true, message: "処理中..." })
             await make_accepted_processing(studentId)
             printSuccessfully()
-            setIsLoading(false)
+            setIsLoading({ status: false, message: "" })
         } else {
             printRecipt(studentId, data.studentName, data.kana, printSuccessfully)
         }
