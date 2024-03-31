@@ -14,6 +14,13 @@ type StudentData = {
   receptionStatus: boolean; // 受付状況
 }
 
+// キャッシュストア型
+type CacheStore = {
+  get: (key: string) => string | null;
+  put: (key: string, value: string) => void;
+  remove: (key: string) => void;
+}
+
 // ======================================================================================
 // GAS依存関数群
 // ======================================================================================
@@ -54,17 +61,51 @@ const getActiveSheet = (): GoogleAppsScript.Spreadsheet.Sheet => {
   return sheet;
 }
 
+// キャッシュストア
+const cacheStore = (): CacheStore => {
+  const cache = CacheService.getScriptCache();
+  return {
+    get: (key: string) => {
+      return cache.get(key);
+    },
+    put: (key: string, value: string) => {
+      cache.put(key, value);
+    },
+    remove: (key: string) => {
+      cache.remove(key);
+    }
+  }
+}
+
 // ======================================================================================
 
 // ======================================================================================
 // 以下がバックエンド処理関数群
 // ======================================================================================
 
+// 事前にデータをキャッシュする関数
+function cacheStudentData(): void {
+  const sheet = getActiveSheet();
+  const lastRow = sheet.getLastRow() - 1;
+  const db = sheet.getRange(2, 1, lastRow, 9).getValues();
+
+  const cache = cacheStore();
+  cache.put("studentData", JSON.stringify(db));
+  cache.put("lastRow", lastRow.toString());
+}
+
+
 // スプシ上のデータを走査して、該当するデータをWebPanel側に返す関数 (TODO: @sage)
 function getStudentData(studentId: string): StudentData | null {
-  const sheet = getActiveSheet();
-  const sprt_values = sheet.getRange('A:A').getValues();
-  const sprt_lastrow = sprt_values.filter(String).length;
+  const cache = cacheStore();
+
+  // 取得結果のキャッシュ
+  if (cache.get("studentData") === null || cache.get("lastRow") === null) {
+    cacheStudentData();
+  }
+
+  const db = JSON.parse(cache.get("studentData") as string);
+  const lastRow = db.length - 1;
 
   const studentData: StudentData = {
     studentId: "",
@@ -78,32 +119,31 @@ function getStudentData(studentId: string): StudentData | null {
     receptionStatus: false,
   };
 
-  for (let i = 2; i <= sprt_lastrow; i++) {
-    if (sheet.getRange(i, 1).getValue() === studentId) {
-      studentData.studentId = sheet.getRange(i, 1).getValue();
-      studentData.studentName = sheet.getRange(i, 2).getValue();
-      studentData.kana = sheet.getRange(i, 3).getValue();
-      studentData.department = sheet.getRange(i, 4).getValue();
-      studentData.remarks = sheet.getRange(i, 5).getValue();
-      studentData.supply = sheet.getRange(i, 6).getValue();
+  for (let i = 0; i < lastRow; i++) {
+    if (db[i][0] === studentId) {
+      studentData.studentId = db[i][0];
+      studentData.studentName = db[i][1];
+      studentData.kana = db[i][2];
+      studentData.department = db[i][3];
+      studentData.remarks = db[i][4];
+      studentData.supply = db[i][5];
 
       // 受付済みの場合
-      if (!(sheet.getRange(i, 7).getValue() === "")) {
+      if (db[i][6] !== "") {
         studentData.receptionStatus = true;
       }
 
       // 非推奨判定
-      if (!(sheet.getRange(i, 8).getValue() === "")) {
+      if (db[i][7] !== "") {
         studentData.isDeprecatedPC = true;
       }
 
       // 案内所要フラグ
-      if (!(sheet.getRange(i, 9).getValue() === "")) {
+      if (db[i][8] !== "") {
         studentData.isNeedNotify = true;
       }
     }
   }
-
   // 該当するデータがなかった場合
   if (studentData.studentId === "") {
     return null;
@@ -116,16 +156,20 @@ function getStudentData(studentId: string): StudentData | null {
 // Webパネルから受け取った位置情報の行の色を変更する関数 (TODO: @sage)
 function make_accepted_processing(studentId: string): boolean {
   const sheet = getActiveSheet();
-  const sprt_values = sheet.getRange('A:A').getValues();
-  const sprt_lastrow = sprt_values.filter(String).length;
+
+  // キャッシュからデータを取得
+  const cache = cacheStore();
+  const db = JSON.parse(cache.get("studentData") as string);
+
+  const lastRow = db.length - 1;
 
   // 走査結果
   let status: boolean = false;
 
-  for (let i = 2; i <= sprt_lastrow; i++) {
-    if (sheet.getRange(i, 1).getValue() === studentId) {
-      sheet.getRange(i, 7).setValue("受付済み"); // 該当者の受付状況を「受付済み」に変更
-      sheet.getRange(i, 1, 1, 7).setBackground("#bce2e8"); // 受付完了者の行の背景色を緑に変更
+  for (let i = 0; i <= lastRow; i++) {
+    if (db[i][0] === studentId) {
+      sheet.getRange(i + 2, 7).setValue("受付済み"); // 該当者の受付状況を「受付済み」に変更
+      sheet.getRange(i + 2, 1, 1, 7).setBackground("#bce2e8"); // 受付完了者の行の背景色を緑に変更
       status = true;
     }
   }
@@ -136,15 +180,19 @@ function make_accepted_processing(studentId: string): boolean {
 // 備考欄の編集を行う関数
 function editRemarks(studentId: string, remarks: string): boolean {
   const sheet = getActiveSheet();
-  const sprt_values = sheet.getRange('A:A').getValues();
-  const sprt_lastrow = sprt_values.filter(String).length;
+
+  // キャッシュからデータを取得
+  const cache = cacheStore();
+  const db = JSON.parse(cache.get("studentData") as string);
+
+  const lastRow = db.length - 1;
 
   // 走査結果
   let status: boolean = false;
 
-  for (let i = 2; i <= sprt_lastrow; i++) {
-    if (sheet.getRange(i, 1).getValue() === studentId) {
-      sheet.getRange(i, 5).setValue(remarks); // 該当者の備考欄を編集
+  for (let i = 0; i <= lastRow; i++) {
+    if (db[i][0] === studentId) {
+      sheet.getRange(i + 2, 5).setValue(remarks); // 該当者の備考欄を編集
       status = true;
     }
   }
@@ -155,16 +203,20 @@ function editRemarks(studentId: string, remarks: string): boolean {
 // 受付をキャンセルする関数
 function cancelReception(studentId: string): boolean {
   const sheet = getActiveSheet();
-  const sprt_values = sheet.getRange('A:A').getValues();
-  const sprt_lastrow = sprt_values.filter(String).length;
+
+  // キャッシュからデータを取得
+  const cache = cacheStore();
+  const db = JSON.parse(cache.get("studentData") as string);
+
+  const lastRow = db.length - 1;
 
   // 走査結果
   let status: boolean = false;
 
-  for (let i = 2; i <= sprt_lastrow; i++) {
-    if (sheet.getRange(i, 1).getValue() === studentId) {
-      sheet.getRange(i, 7).setValue(""); // 該当者の受付状況を「」に変更
-      sheet.getRange(i, 1, 1, 7).setBackground("#ffffff"); // 受付完了者の行の背景色を白に変更
+  for (let i = 0; i <= lastRow; i++) {
+    if (db[i][0] === studentId) {
+      sheet.getRange(i + 2, 7).setValue(""); // 該当者の受付状況を「」に変更
+      sheet.getRange(i + 2, 1, 1, 7).setBackground("#ffffff"); // 受付完了者の行の背景色を白に変更
       status = true;
     }
   }

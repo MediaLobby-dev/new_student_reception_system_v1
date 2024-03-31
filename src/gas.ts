@@ -41,3 +41,13 @@ export function cancelReception(studentId: string) {
             .cancelReception(studentId);
     });
 }
+
+// キャッシュを取得する関数を呼び出す
+export function getCache() {
+    return new Promise((resolve, reject) => {
+        google.script.run
+            .withSuccessHandler((msg: string) => resolve(msg))
+            .withFailureHandler((e: any) => reject(e)) 
+            .cacheStudentData();
+    });
+}

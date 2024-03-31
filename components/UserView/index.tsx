@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import RemarkInputBox from '../RemarkInputBox'
 import { useStudentData } from '../../hooks/useStudentData'
 import { StateStore } from '../../src/App'
@@ -57,11 +57,15 @@ function getDepartmentColor(departmentName: string) {
 }
 
 export default function UserView() {
-    const { setStatusCode, studentId, setStudentId, inputEl, isLoading } = useContext(StateStore);
+    const { setStatusCode, studentId, setStudentId, inputEl, setIsLoading } = useContext(StateStore);
     const { data, isDataLoading } = useStudentData(studentId);
 
     const [isLoadingModal, setIsLoadingModal] = useState(false);
     const [modalIsOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        setIsLoading({ status: isDataLoading, message: "データ取得中..." })
+    }, [isDataLoading, setIsLoading])
 
     function openModal() {
         setIsOpen(true);
@@ -94,16 +98,6 @@ export default function UserView() {
         }
         closeModal();
         reset();
-    }
-
-
-    // データ取得中
-    if (isLoading || isDataLoading) {
-        return (
-            <div className="spinner-border" role="status">
-                <span className="visually-hidden">Loading...</span>
-            </div>
-        );
     }
 
     // データが存在しない
