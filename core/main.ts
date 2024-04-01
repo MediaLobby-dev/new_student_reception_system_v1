@@ -18,7 +18,6 @@ type StudentData = {
 type CacheStore = {
   getStudentData: () => Array<StudentData>;
   setStudentData: (value: string) => void;
-  setLastRow: (value: string) => void;
   setRemark: (num: number, value: string) => void;
   setReceiptStatus: (num: number, value: string) => void;
 }
@@ -71,20 +70,17 @@ const cacheStore = (): CacheStore => {
       return JSON.parse(cache.get("studentData") as string);
     },
     setStudentData: (value: string) => {
-      cache.put("studentData", value);
-    },
-    setLastRow: (value: string) => {
-      cache.put("lastRow", value);
+      cache.put("studentData", value, 21600);
     },
     setRemark: (num: number, value: string) => {
       const db = JSON.parse(cache.get("studentData") as string);
       db[num][4] = value;
-      cache.put("studentData", JSON.stringify(db));
+      cache.put("studentData", JSON.stringify(db), 21600);
     },
     setReceiptStatus: (num: number, value: string) => {
       const db = JSON.parse(cache.get("studentData") as string);
       db[num][6] = value;
-      cache.put("studentData", JSON.stringify(db));
+      cache.put("studentData", JSON.stringify(db), 21600);
     }
   }
 }
@@ -103,7 +99,6 @@ function cacheStudentData(): void {
 
   const cache = cacheStore();
   cache.setStudentData(JSON.stringify(db));
-  cache.setLastRow(lastRow.toString());
 }
 
 // スプシ上のデータを走査して、該当するデータをWebPanel側に返す関数 (TODO: @sage)
