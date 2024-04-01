@@ -18,7 +18,6 @@ type StudentData = {
 type CacheStore = {
   getStudentData: () => Array<StudentData>;
   setStudentData: (value: string) => void;
-  setLastRow: (value: string) => void;
   setRemark: (num: number, value: string) => void;
   setReceiptStatus: (num: number, value: string) => void;
 }
@@ -71,20 +70,17 @@ const cacheStore = (): CacheStore => {
       return JSON.parse(cache.get("studentData") as string);
     },
     setStudentData: (value: string) => {
-      cache.put("studentData", value);
-    },
-    setLastRow: (value: string) => {
-      cache.put("lastRow", value);
+      cache.put("studentData", value, 21600);
     },
     setRemark: (num: number, value: string) => {
       const db = JSON.parse(cache.get("studentData") as string);
       db[num][4] = value;
-      cache.put("studentData", JSON.stringify(db));
+      cache.put("studentData", JSON.stringify(db), 21600);
     },
     setReceiptStatus: (num: number, value: string) => {
       const db = JSON.parse(cache.get("studentData") as string);
       db[num][6] = value;
-      cache.put("studentData", JSON.stringify(db));
+      cache.put("studentData", JSON.stringify(db), 21600);
     }
   }
 }
@@ -103,22 +99,12 @@ function cacheStudentData(): void {
 
   const cache = cacheStore();
   cache.setStudentData(JSON.stringify(db));
-  cache.setLastRow(lastRow.toString());
 }
-
 
 // スプシ上のデータを走査して、該当するデータをWebPanel側に返す関数 (TODO: @sage)
 function getStudentData(studentId: string): StudentData | null {
   const cache = cacheStore();
-
   const db = cache.getStudentData();
-
-  // 取得結果のキャッシュ
-  if (db === null) {
-    cacheStudentData();
-  }
-
-  const lastRow = db.length - 1;
 
   const studentData: StudentData = {
     studentId: "",
@@ -132,7 +118,7 @@ function getStudentData(studentId: string): StudentData | null {
     receptionStatus: false,
   };
 
-  for (let i = 0; i < lastRow; i++) {
+  for (let i = 0; i <= db.length - 1; i++) {
     if (db[i][0] === studentId) {
       studentData.studentId = db[i][0];
       studentData.studentName = db[i][1];
@@ -174,12 +160,10 @@ function make_accepted_processing(studentId: string): boolean {
   const cache = cacheStore();
   const db = cache.getStudentData();
 
-  const lastRow = db.length - 1;
-
   // 走査結果
   let status: boolean = false;
 
-  for (let i = 0; i <= lastRow; i++) {
+  for (let i = 0; i <= db.length - 1; i++) {
     if (db[i][0] === studentId) {
       sheet.getRange(i + 2, 7).setValue("受付済み"); // 該当者の受付状況を「受付済み」に変更
       sheet.getRange(i + 2, 1, 1, 7).setBackground("#bce2e8"); // 受付完了者の行の背景色を緑に変更
@@ -199,12 +183,10 @@ function editRemarks(studentId: string, remarks: string): boolean {
   const cache = cacheStore();
   const db = cache.getStudentData();
 
-  const lastRow = db.length - 1;
-
   // 走査結果
   let status: boolean = false;
 
-  for (let i = 0; i <= lastRow; i++) {
+  for (let i = 0; i <= db.length - 1; i++) {
     if (db[i][0] === studentId) {
       sheet.getRange(i + 2, 5).setValue(remarks); // 該当者の備考欄を編集
       cache.setRemark(i, remarks); // 編集内容をキャッシュに反映
@@ -223,12 +205,10 @@ function cancelReception(studentId: string): boolean {
   const cache = cacheStore();
   const db = cache.getStudentData();
 
-  const lastRow = db.length - 1;
-
   // 走査結果
   let status: boolean = false;
 
-  for (let i = 0; i <= lastRow; i++) {
+  for (let i = 0; i <= db.length - 1; i++) {
     if (db[i][0] === studentId) {
       sheet.getRange(i + 2, 7).setValue(""); // 該当者の受付状況を「」に変更
       sheet.getRange(i + 2, 1, 1, 7).setBackground("#ffffff"); // 受付完了者の行の背景色を白に変更
